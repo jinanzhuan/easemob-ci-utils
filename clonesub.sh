@@ -41,20 +41,38 @@ git remote add origin "$REPO_URL"
 git config core.sparseCheckout true
 
 # Define the folder to checkout
-# Ensure the path doesn't start with / and ends with /* for directories
+# Ensure the path doesn't start with / and ends properly
 CLEANED_FOLDER_PATH=$(echo "$FOLDER_PATH" | sed 's#^/*##' | sed 's#/*$##')
-echo "$CLEANED_FOLDER_PATH/*" > .git/info/sparse-checkout
-# If you need files directly within the folder (not just sub-items), add the folder itself:
-# echo "$CLEANED_FOLDER_PATH" >> .git/info/sparse-checkout
+
+# Create sparse-checkout file with both the folder itself and its contents
+{
+    echo "$CLEANED_FOLDER_PATH"
+    echo "$CLEANED_FOLDER_PATH/*"
+} > .git/info/sparse-checkout
 
 echo "Fetching branch '$BRANCH_NAME' (shallow)..."
 # Pull only the specified branch, depth 1 for efficiency
-git pull --depth=1 origin "$BRANCH_NAME"
+if ! git pull --depth=1 origin "$BRANCH_NAME"; then
+    echo "Error: Failed to fetch from repository. Please check:"
+    echo "  1. Repository URL: $REPO_URL"
+    echo "  2. Branch name: $BRANCH_NAME" 
+    echo "  3. Authentication credentials"
+    echo "  4. Network connectivity"
+    exit 1
+fi
 
-# Optional: If you want to remove the .git directory after cloning
-# rm -rf .git
+# Verify that the expected folder was actually downloaded
+if [ ! -d "$CLEANED_FOLDER_PATH" ]; then
+    echo "Error: Expected folder '$CLEANED_FOLDER_PATH' was not found after checkout."
+    echo "Available files/folders:"
+    ls -la
+    exit 1
+fi
 
 echo "Successfully cloned '$FOLDER_PATH' to '$TARGET_DIR'."
+echo "Folder structure:"
+ls -la "$CLEANED_FOLDER_PATH" | head -10
+
 cd .. # Go back to the original directory
 
 exit 0
