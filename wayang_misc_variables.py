@@ -1,12 +1,12 @@
 urlevn = "ebs"
 orgName = "easemob-demo"
-appName = "yxd"
+appName = "lxm"
 RunOrgToken = "NORUN"
 RunAppToken = "RUN"
 RunUserToken = "RUN"
 bReport = False
 bClear = True
-ApiInterval = 2
+ApiInterval = 4
 wayang_timeout = 20
 wayang_delay = 10
 wayang_retry = 3
