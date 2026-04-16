@@ -10,3 +10,4 @@ ApiInterval = 2
 wayang_timeout = 20
 wayang_delay = 10
 wayang_retry = 3
+wayang_cache_wait_grace = 0
